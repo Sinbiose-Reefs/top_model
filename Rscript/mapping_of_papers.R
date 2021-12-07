@@ -1,6 +1,6 @@
 # ---------------------------------- #
 # load (or install) needed packages
-source ("R/packages.R")
+source ("Rscript/packages.R")
 
 # load data for topic-modeling data for mapping
 load (here("output", "spatial_data_topic_modeling.RData"))

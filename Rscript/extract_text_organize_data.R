@@ -1,12 +1,12 @@
 
 # load (or install) needed packages
-source ("R/packages.R")
+source ("Rscript/packages.R")
 
 ## functions to extract coordinates in batch
 # the functional already implements coordinate cleaning
 # and rounding of coordinates
 # Load functions 
-source("R/retLongLatFunction.R")
+source("Rscript/retLongLatFunction.R")
 
 # load data with dois
 csv_with_doi <- read.csv(here ("data", "papers_doi.csv"),sep=",")
