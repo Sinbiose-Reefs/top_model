@@ -8,5 +8,5 @@ data/Baselines_2
 data/MPAs
 data/South_America
 Rscript/rscopus.R
-output/figs/*.svg
+output/figs
 output/*.RData
