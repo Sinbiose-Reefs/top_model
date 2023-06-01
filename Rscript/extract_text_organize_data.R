@@ -24,17 +24,15 @@ doisurl_dxdoi <- paste0("http://dx.doi.org/",gsub("http://dx.doi.org/","",doi_to
 
 ## extract text to save
 ### you need to be connected to the internet of your institution (that pays for paper's access)
-# text_to_save <- lapply(doisurl_dxdoi, function (i) 
-  
-#  tryCatch ( # try overcome errors
-#    save_text (i),
-#    error = function (e)
-#      return (e))
-  
-#)
+text_to_save <- lapply(doisurl_dxdoi, function (i) 
+tryCatch ( # try overcome errors
+  save_text (i),
+  error = function (e)
+    return (e))
+)
 
 # save - you can find this result in the  folder "output"
-#save(text_to_save,file=here ("output","saved_text.RData"))
+save(text_to_save,file=here ("output","saved_text_update.RData"))
 # load extracted text (if you're not in your institution)
 load(here ("output","saved_text.RData"))
 
