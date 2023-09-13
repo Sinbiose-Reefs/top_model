@@ -7,6 +7,9 @@ chat_meeting.txt
 data/Baselines_2
 data/MPAs
 data/South_America
+data/old_data
+Rscript/extract_text_organize_data.R
+Rscript/retLongLatFunction.R
 Rscript/rscopus.R
-output/figs
-output/*.RData
+output/figs/old_plots
+output/old_data
