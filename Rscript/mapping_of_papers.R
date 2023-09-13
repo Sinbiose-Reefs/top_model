@@ -1,12 +1,28 @@
 # ---------------------------------- #
+
+
 # load (or install) needed packages
+
+
 source ("Rscript/packages.R")
 
 # load data for topic-modeling data for mapping
-load (here("output", "spatial_data_topic_modeling.RData"))
+# load (here("output", "spatial_data_topic_modeling.RData"))
+matched_data_coordinates_mpas_institutions <- read.csv(here ("data","spatial_data_topic_modeling_3.csv"))
+
+# remove some papers that are mistakes
+matched_data_coordinates_mpas_institutions<-matched_data_coordinates_mpas_institutions [-grep("SIMONE LUIZ RICARDO L 2012", # mollusk from Caatinga
+                                                  matched_data_coordinates_mpas_institutions$Paper_ID),]
+
+
+# adjusting coordinates (gather costal coordinates from provided range)
+matched_data_coordinates_mpas_institutions [grep ("BEZERRA IM, 2021, FISH RES",
+                                                  matched_data_coordinates_mpas_institutions$Paper_ID),"decimallongitude"] <- -39.38
+matched_data_coordinates_mpas_institutions [grep ("BEZERRA IM, 2021, FISH RES",
+                                                  matched_data_coordinates_mpas_institutions$Paper_ID),"decimallatitude"] <- -21.17
 
 # number of coordinates per period
-table(matched_data_coordinates_mpas_institutions$data)
+#table(matched_data_coordinates_mpas_institutions$data)
 # number of papres
 length(unique(matched_data_coordinates_mpas_institutions$Paper_ID))
 
@@ -17,7 +33,9 @@ southAme<- readOGR(dsn= here("data","South_America"),encoding="latin1",
                    layer="South_America")
 
 # load the coordinates of the BR capitals
-capitals <- read.csv (file = here ("data", "capitals.csv"),sep=";")
+capitals <- read.csv (file = here ("data", "capitals.csv"),
+                      sep=";",
+                      encoding = "latin1")
 
 # convert the data frame into a spatial coordinates object
 complet_set_of_coordinates_sp <- matched_data_coordinates_mpas_institutions[,c("decimallongitude", "decimallatitude")]
@@ -50,7 +68,7 @@ matched_data_coordinates_mpas_institutions$YearCat  <- sapply(matched_data_coord
                                             if (x<=2005) {"<=2005"} 
                                             else if (x>=2006&x<=2010) {"2006-2010"} 
                                             else if (x>=2011&x<=2015) {"2011-2015"} 
-                                            else if (x>=2016&x<=2021) {"2016-2021"}}
+                                            else if (x>=2016&x<=2022) {"2016-2022"}}
               )
 
 # table(matched_data_coordinates_mpas_institutions$YearCat)
@@ -85,12 +103,12 @@ rs1_total<-clamp(rs1, lower=0, useValues=T)
 # plot - number of sites per cell
 plot2 <- gplot(rs1_total) +
   geom_tile(aes(x=x, y=y, fill=value), alpha=1) + 
-  coord_fixed (xlim = c( -57, -25), 
+  coord_fixed (xlim = c( -60, -25), 
                ylim = c(-40, 10), ratio = 1) +
   scale_fill_viridis(option="magma",direction=-1,begin=0,
                      breaks = seq (range(values(rs1_total),na.rm=T)[1],
                                    range(values(rs1_total),na.rm=T)[2],
-                                   9),
+                                   30),
                      limits=c(range(values(rs1_total),na.rm=T)[1]+1,
                               range(values(rs1_total),na.rm=T)[2]),
                      na.value=NA,
@@ -131,11 +149,11 @@ x2 <- clamp(stack_DOIS[[2]], lower=1, upper=1, useValues=T)
 x3 <- clamp(stack_DOIS[[1]], lower=1,  upper=1, useValues=T)
 
 # before 2005
-y1<- gplot(x) +
+y1 <- gplot(x) +
   geom_tile(aes(x=x, y=y, fill=value), alpha=1) + 
   coord_fixed (xlim = c( -57, -25), 
                ylim = c(-40, 10), ratio = 1) +
-  scale_fill_gradientn(colors="#FF9C91",na.value = "white") + 
+  scale_fill_gradientn(colors="#87c450",na.value = "white") + 
   ggtitle ("Sites studied until 2005") + 
   theme_classic() + geom_polygon(data=southAme, 
                                  aes(x=long, y=lat, group=group),
@@ -152,7 +170,7 @@ y1<- gplot(x) +
 cinco_dez <- merge(stack_DOIS[[3]],stack_DOIS[[4]])
 soma_cinco_dez1 <- clamp(cinco_dez, lower=0,upper=1,  useValues=T)
 soma_cinco_dez <- sum(soma_cinco_dez1, x,na.rm=T)
-cols <- c("0" = "white", "1" = "#FF9C91", "2" = "#1C2938")
+cols <- c("0" = "white", "1" = "#87c450", "2" = "#2087af")
 
 y2<- gplot(soma_cinco_dez) +
   geom_tile(aes(x=x, y=y, fill=value), alpha=1) + 
@@ -206,7 +224,7 @@ y4<-gplot(soma_cinco_dez_quinze_vinte) +
   coord_fixed (xlim = c( -57, -25), 
                ylim = c(-40, 10), ratio = 1) +
   scale_fill_gradientn(colors=cols) + 
-  ggtitle ("Gain between 2016 and 2020") + 
+  ggtitle ("Gain between 2016 and 2022") + 
   theme_classic() + geom_polygon(data=southAme, 
                                  aes(x=long, y=lat, group=group),
                                  size = 0.1, fill="gray60", 
@@ -221,21 +239,40 @@ y4<-gplot(soma_cinco_dez_quinze_vinte) +
 # -------------------------------------------
 # predominance of different topics
 
+# load the list of topics
+topic_names <- read.csv (here("data", "topic_names.csv"),sep=";")
+# load topic modeling output
+topic_modeling_output <- read.csv (here ("data", "M2.csv"),sep=",")
+colnames(topic_modeling_output)[-1]<-topic_names$topic
+
+
+# match datasets
+# dimensions are different but the datasets match
+table(unique(matched_data_coordinates_mpas_institutions$Paper_ID) %in% unique(topic_modeling_output$Paper_ID))
+
+matched_data_coordinates_mpas_institutions <-  (merge (
+  
+        matched_data_coordinates_mpas_institutions,
+         topic_modeling_output,
+        by="Paper_ID"))
+
+
 # all topics
 # where more topics are studied
 # thrshold to cover a topic
 tp <- 0.1
-#matched_data_coordinates_mpas_institutions$topic_cover <- (rowSums(matched_data_coordinates_mpas_institutions[,11:35]>tp)) # cols of topics
-topics <- colnames(matched_data_coordinates_mpas_institutions[,6:30]) # list of topics
+
 # get the set of coordinates for each topic
-complet_set_topics <- lapply (topics, function (i) {
-  # subsetting based on DOI (also rm this column )
+complet_set_topics <- lapply (topic_names$topic, function (i) {
+
+    # subsetting based on DOI (also rm this column )
   col_to_sel<-which(colnames(matched_data_coordinates_mpas_institutions) %in% i)
   data_DOI<-matched_data_coordinates_mpas_institutions [, c("decimallongitude",
                                                "decimallatitude",
                                                colnames(matched_data_coordinates_mpas_institutions)[col_to_sel])] # coordinates
   # subset based on topic cover threshold 
   data_DOI <- data_DOI[which(data_DOI[,3] >= tp),]# the third column always have the probabilities
+  
   # aggregate
   #data_DOI<-aggregate(data_DOI,by=list(rep(1,nrow(data_DOI))), FUN=mean)
   # convert  data into spatial coordinates
@@ -255,7 +292,8 @@ complet_set_topics <- lapply (topics, function (i) {
 
 # stack rasters from the several topics
 stack_topics <- (stack(complet_set_topics))
-stack_topics <- stack_topics[[which(names(stack_topics) %in% topics)]] # rm IDs
+stack_topics<-stack_topics [[-grep("ID.",names(stack_topics))]]# remove IDs
+
 # sum the number of sites per cell and topic
 rs1_topics <- calc(stack_topics, sum,na.rm=T)
 rs1_topics_clamp <-clamp(rs1_topics, 
@@ -285,6 +323,7 @@ plot_top <- gplot(topics_per_cell) +
                      na.value=NA) +
   ggtitle ("C) Proportion of topics covered, per cell") + 
   theme_classic() 
+
 # add south america map
 plot_top <- plot_top + geom_polygon(data=southAme, 
                                     aes(x=long, y=lat, group=group),
@@ -300,6 +339,12 @@ plot_top <- plot_top + geom_polygon(data=southAme,
 
 # number of topics per cell
 plot_top
+
+
+# there's a high correlation between the number of studies and topics
+cor (values(rs1_total),
+     values(topics_per_cell))
+
 
 # arrange
 require(ggpubr)
@@ -319,18 +364,28 @@ arranged_plot <- annotate_figure(arranged_plot,
                 top = text_grob("B) Spatiotemporal trends", 
                                 color = "black",  size = 14))
 
-pdf(here("output","figs","map1.pdf"),width=10,heigh=5)
+pdf(here("output","figs","map1.pdf"),width=12,heigh=6)
 arranged_plot
 dev.off()
 
-# select topics to show
+# -----------------------------------------
+
+# select topics to show in the map
+
+
+
 # the 10 more frequent
-selected_topics <- colSums(matched_data_coordinates_mpas_institutions[,6:30])[order(colSums(matched_data_coordinates_mpas_institutions[,6:30]),decreasing = T)]
+selected_topics <- colSums(matched_data_coordinates_mpas_institutions[,7:31])[order(colSums(matched_data_coordinates_mpas_institutions[,7:31]),decreasing = T)]
 n_sel_topics<- 8 # the number of selected topics 
 selected_topics <- names(selected_topics)[1:n_sel_topics]
+selected_topics <- gsub (" ", ".", selected_topics)
+
 # subset the dataset of rasters
 stack_topics_sub <- stack_topics[[which(names(stack_topics) %in% selected_topics)]]# rm IDs
 stack_topics_sub<-stack_topics_sub[[match(selected_topics,names(stack_topics_sub))]]# match names of most frequent
+
+# check the ranges
+range(values(stack_topics_sub[[8]]),na.rm=T)
 
 # taxonomy
 
@@ -345,11 +400,11 @@ maps_topics <- lapply (seq (1,dim(stack_topics_sub)[3]), function (i) {
     coord_fixed (xlim = c( -57, -25), 
                ylim = c(-40, 10), ratio = 1) +
     scale_fill_viridis(option="magma", direction=-1,begin=0,
-                     breaks = seq (range(values(stack_topics_sub$Taxonomy...Systematics),na.rm=T)[1], # legend always the same
-                                   range(values(stack_topics_sub$Taxonomy...Systematics),na.rm=T)[2],# taxonomy because it was the most frequent topic
+                     breaks = seq (range(values(stack_topics_sub[[i]]),na.rm=T)[1], # legend always the same
+                                   range(values(stack_topics_sub[[i]]),na.rm=T)[2],# taxonomy because it was the most frequent topic
                                    5),
-                     limits=c(range(values(stack_topics_sub$Taxonomy...Systematics),na.rm=T)[1]+1,
-                              range(values(stack_topics_sub$Taxonomy...Systematics),na.rm=T)[2]),
+                     limits=c(range(values(stack_topics_sub[[8]]),na.rm=T)[1]+1,
+                              range(values(stack_topics_sub[[8]]),na.rm=T)[2]),
                      na.value=NA) +
   ggtitle (names(stack_topics_sub)[i]) + 
   theme_classic() 
