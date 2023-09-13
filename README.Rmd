@@ -1,0 +1,34 @@
+---
+title: "Topic modeling project, ReefSYN"
+output: github_document
+---
+
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Repository containing the data and scripts used in the article of Osmar Luiz.
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+
+#### This paper was produced using the following software and associated packages:
+
+```{r pressure, echo=F,warning=F,message=F}
+
+source("Rscript/packages.R")
+sessionInfo()
+
+
+```
+
