@@ -5,7 +5,7 @@ Topic modeling project, ReefSYN
 <!-- badges: start -->
 <!-- badges: end -->
 
-<img src="docs/Logo Completa CORES GDE.png" width="50%" height="50%" style="display: block; margin: auto;" />
+<img src="LogoReefSYN.png" width="50%" height="50%" style="display: block; margin: auto;" />
 
 Repository containing the data and scripts used to map reef research in
 the article of Osmar Luiz (Charles Darwin University, Australia).
