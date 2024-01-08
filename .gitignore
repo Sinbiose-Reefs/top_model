@@ -2,11 +2,14 @@
 .Rhistory
 .RData
 .Ruserdata
-chat_meeting.txt
-*.pptx
+docs
+1-processed_data_HTML/saved_text_update.RData
+2-Rscript_mapping/mapping_of_papers_synthesis_report.R
+
 data/Baselines_2
 data/MPAs
 data/South_America
+data/magris_reef_map
 data/old_data
 Rscript/old_scripts
 output/figs/old_plots
