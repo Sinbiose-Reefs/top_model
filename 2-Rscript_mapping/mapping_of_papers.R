@@ -105,7 +105,7 @@ plot2 <- gplot(rs1_total) +
   geom_tile(aes(x=x, y=y, fill=value), alpha=1) + 
   coord_fixed (xlim = c( -60, -25), 
                ylim = c(-40, 10), ratio = 1) +
-  scale_fill_viridis(option="magma",direction=-1,begin=0,
+  scale_fill_viridis(option="magma",direction=1,begin=0,
                      breaks = seq (range(values(rs1_total),na.rm=T)[1],
                                    range(values(rs1_total),na.rm=T)[2],
                                    30),
@@ -140,6 +140,9 @@ plot2_total <- plot2_total + #geom_point(data=capitals,aes (x=LONG,y=LAT))+
                    max.time = 1, max.iter = 1e5, # stop after 1 second, or after 100,000 iterations
                    box.padding = -0.3)
 
+
+
+
 # distribution of sites (gain of cells) per period of five years
 # transforming >0 in 1
 
@@ -170,7 +173,7 @@ y1 <- gplot(x) +
 cinco_dez <- merge(stack_DOIS[[3]],stack_DOIS[[4]])
 soma_cinco_dez1 <- clamp(cinco_dez, lower=0,upper=1,  useValues=T)
 soma_cinco_dez <- sum(soma_cinco_dez1, x,na.rm=T)
-cols <- c("0" = "white", "1" = "#87c450", "2" = "#2087af")
+cols <- c("0" = "white", "1" = "#2087af", "2" = "#87c450")
 
 y2<- gplot(soma_cinco_dez) +
   geom_tile(aes(x=x, y=y, fill=value), alpha=1) + 
